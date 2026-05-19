@@ -1,0 +1,118 @@
+{
+    "owner": {
+        "name": "Than Evoraeee",
+        "title": "Business Analyst & Data Scientist",
+        "tagline": "Turning data into insights that drive business success.",
+        "location": "Payatas, Quezon, Philippines",
+        "email": "thanevora86@gmail.com",
+        "phone": "(+63) 9270726974",
+        "cv_url": "",
+        "socials": {
+            "github": "https:\/\/github.com",
+            "linkedin": "https:\/\/linkedin.com",
+            "facebook": ""
+        }
+    },
+    "footer": {
+        "copyright": "© 2025 Than Evora. All rights reserved.",
+        "credit": "Built with PHP & Tailwind"
+    },
+    "hero_slides": [
+        {
+            "images": [],
+            "title": "Hi, I'm Than Evora",
+            "subtitle": "I transform data into actionable insights",
+            "link": "#about"
+        }
+    ],
+    "about": {
+        "bio": "Motivated IT professional with experience in leadership, public speaking, programming, and system development.",
+        "stats": [
+            {
+                "label": "Projects Delivered",
+                "value": "15+"
+            },
+            {
+                "label": "Years Experience",
+                "value": "3+"
+            },
+            {
+                "label": "Happy Clients",
+                "value": "10+"
+            }
+        ]
+    },
+    "projects": [
+        {
+            "title": "E-Commerce Platform",
+            "description": "Full-featured online store with cart, payments, and admin dashboard.",
+            "tags": [
+                "PHP",
+                "Laravel",
+                "MySQL",
+                "Tailwind"
+            ],
+            "image": "",
+            "url": "#",
+            "featured": true
+        }
+    ],
+    "skills": [
+        "PHP \/ Laravel",
+        "JavaScript (ES6+)",
+        "Vue.js \/ React",
+        "Tailwind CSS",
+        "MySQL \/ PostgreSQL",
+        "Git \/ Docker"
+    ],
+    "experience": [],
+    "journey": [
+        {
+            "year": "1st Year",
+            "description": "Introduction to programming fundamentals, algorithms, and logic.",
+            "images": []
+        }
+    ],
+    "contact": {
+        "heading": "Let's Work Together",
+        "subheading": "I'm always open to discussing new projects and opportunities.",
+        "extra_text": "Feel free to reach out anytime!"
+    },
+    "nav_items": [
+        {
+            "id": "home",
+            "label": "Home",
+            "icon": "home"
+        },
+        {
+            "id": "about",
+            "label": "About",
+            "icon": "user"
+        },
+        {
+            "id": "projects",
+            "label": "Projects",
+            "icon": "folder-git-2"
+        },
+        {
+            "id": "skills",
+            "label": "Skills",
+            "icon": "zap"
+        },
+        {
+            "id": "experience",
+            "label": "Experience",
+            "icon": "briefcase"
+        },
+        {
+            "id": "journey",
+            "label": "College",
+            "icon": "graduation-cap"
+        },
+        {
+            "id": "contact",
+            "label": "Contact",
+            "icon": "mail"
+        }
+    ]
+}
