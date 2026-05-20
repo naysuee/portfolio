@@ -1,5 +1,16 @@
 <?php
+/**
+ * Admin dashboard – manage all portfolio content.
+ */
+
 require_once 'config.php';
+
+// ---------- Handle logout (clear session and redirect) ----------
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header('Location: index.php');
+    exit;
+}
 
 // ==================== AUTHENTICATION CHECK ====================
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -10,7 +21,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 $data = loadData();
 $message = '';
 
-// ==================== HELPER FUNCTIONS FOR FORM FIELDS ====================
+// ==================== HELPER FUNCTIONS ====================
 function textField($label, $name, $value = '', $type = 'text') {
     return "<div>
         <label class='block text-sm font-medium text-gray-700 mb-1'>$label</label>
@@ -27,7 +38,7 @@ function textareaField($label, $name, $value = '') {
 
 // ==================== PROCESS FORM SUBMISSIONS ====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ---------- Owner Info (with Facebook) ----------
+    // ---------- Owner Info (with custom icon uploads) ----------
     if (isset($_POST['update_owner'])) {
         $data['owner']['name']     = $_POST['name'] ?? '';
         $data['owner']['title']    = $_POST['title'] ?? '';
@@ -36,10 +47,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['owner']['email']    = $_POST['email'] ?? '';
         $data['owner']['phone']    = $_POST['phone'] ?? '';
         $data['owner']['socials'] = [
-            'github'   => $_POST['github'] ?? '',
-            'linkedin' => $_POST['linkedin'] ?? '',
-            'facebook' => $_POST['facebook'] ?? ''
+            'github'    => $_POST['github'] ?? '',
+            'jobstreet' => $_POST['jobstreet'] ?? '',
+            'facebook'  => $_POST['facebook'] ?? '',
+            'instagram' => $_POST['instagram'] ?? ''
         ];
+        
+        // Handle custom icon uploads
+        $iconFields = ['github_icon', 'jobstreet_icon', 'facebook_icon', 'instagram_icon'];
+        foreach ($iconFields as $icon) {
+            if (!empty($_FILES[$icon]['name'])) {
+                $iconPath = uploadFile($_FILES[$icon], 'icons/');
+                if ($iconPath) {
+                    $platform = str_replace('_icon', '', $icon);
+                    if (!empty($data['owner']['social_icons'][$platform])) {
+                        deleteFile($data['owner']['social_icons'][$platform]);
+                    }
+                    $data['owner']['social_icons'][$platform] = $iconPath;
+                }
+            }
+        }
+        
         if (!empty($_FILES['cv_file']['name'])) {
             $cvPath = uploadFile($_FILES['cv_file'], '');
             if ($cvPath) {
@@ -65,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($titles as $i => $title) {
             $images = [];
-            // Handle newly uploaded images for this slide
             if (!empty($_FILES['slide_images']['name'][$i])) {
                 foreach ($_FILES['slide_images']['name'][$i] as $k => $imgName) {
                     if ($_FILES['slide_images']['error'][$i][$k] === UPLOAD_ERR_OK) {
@@ -78,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
-            // Merge existing images
             if (!empty($existingImagesJson[$i])) {
                 $existing = json_decode($existingImagesJson[$i], true);
                 if (is_array($existing)) $images = array_merge($images, $existing);
@@ -173,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['experience'] = $experienceData;
         $message = 'Experience updated.';
     }
-    // ---------- College Journey (fixed multi‑image) ----------
+    // ---------- College Journey (multi‑image) ----------
     elseif (isset($_POST['update_journey'])) {
         $journeyData = [];
         $years = $_POST['journey_year'] ?? [];
@@ -252,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="flex items-center gap-2"><i data-lucide="settings"></i><span class="text-xl font-bold">Portfolio Admin</span></div>
             <div>
                 <a href="index.php" target="_blank" class="bg-white/10 px-3 py-1.5 rounded mr-3">View Site</a>
-                <a href="admin-login.php?logout=1" class="text-gray-300" onclick="return confirm('Logout?')">Logout</a>
+                <a href="admin.php?logout=1" class="text-gray-300 hover:text-white" onclick="return confirm('Logout?')">Logout</a>
             </div>
         </div>
     </header>
@@ -277,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="contact">Contact</button>
             </div>
 
-            <!-- TAB CONTENT: OWNER INFO -->
+            <!-- OWNER INFO (with custom icon uploads) -->
             <div id="tab-owner" class="tab-content">
                 <form method="POST" enctype="multipart/form-data" class="save-form">
                     <input type="hidden" name="update_owner" value="1">
@@ -289,11 +315,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?= textField('Email', 'email', $data['owner']['email']) ?>
                         <?= textField('Phone', 'phone', $data['owner']['phone']) ?>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 mt-4">
+                    <div class="grid grid-cols-2 gap-4 mt-4">
                         <?= textField('GitHub URL', 'github', $data['owner']['socials']['github'] ?? '') ?>
-                        <?= textField('LinkedIn URL', 'linkedin', $data['owner']['socials']['linkedin'] ?? '') ?>
+                        <?= textField('JobStreet URL', 'jobstreet', $data['owner']['socials']['jobstreet'] ?? '') ?>
                         <?= textField('Facebook URL', 'facebook', $data['owner']['socials']['facebook'] ?? '') ?>
+                        <?= textField('Instagram URL', 'instagram', $data['owner']['socials']['instagram'] ?? '') ?>
                     </div>
+                    
+                    <!-- Custom Icons Upload Section -->
+                    <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-gray-200">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GitHub Icon (PNG/SVG)</label>
+                            <input type="file" name="github_icon" accept="image/*" class="block w-full text-sm">
+                            <?php if (!empty($data['owner']['social_icons']['github'])): ?>
+                                <img src="<?= htmlspecialchars($data['owner']['social_icons']['github']) ?>" class="h-10 mt-2 rounded border">
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">JobStreet Icon</label>
+                            <input type="file" name="jobstreet_icon" accept="image/*" class="block w-full text-sm">
+                            <?php if (!empty($data['owner']['social_icons']['jobstreet'])): ?>
+                                <img src="<?= htmlspecialchars($data['owner']['social_icons']['jobstreet']) ?>" class="h-10 mt-2 rounded border">
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Facebook Icon</label>
+                            <input type="file" name="facebook_icon" accept="image/*" class="block w-full text-sm">
+                            <?php if (!empty($data['owner']['social_icons']['facebook'])): ?>
+                                <img src="<?= htmlspecialchars($data['owner']['social_icons']['facebook']) ?>" class="h-10 mt-2 rounded border">
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Instagram Icon</label>
+                            <input type="file" name="instagram_icon" accept="image/*" class="block w-full text-sm">
+                            <?php if (!empty($data['owner']['social_icons']['instagram'])): ?>
+                                <img src="<?= htmlspecialchars($data['owner']['social_icons']['instagram']) ?>" class="h-10 mt-2 rounded border">
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Upload CV (PDF/DOCX)</label>
                         <input type="file" name="cv_file" class="block w-full text-sm">
@@ -305,17 +365,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
 
-            <!-- TAB CONTENT: FOOTER -->
+            <!-- FOOTER -->
             <div id="tab-footer" class="tab-content hidden">
                 <form method="POST" class="save-form">
                     <input type="hidden" name="update_footer" value="1">
                     <?= textField('Copyright Text', 'copyright', $data['footer']['copyright'] ?? '') ?>
                     <?= textField('Credit Line', 'credit', $data['footer']['credit'] ?? '') ?>
-                    <button type="submit" class="mt-6 px-6 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-600">Save Footer</button>
+                    <button type="submit" class="mt-6 px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Footer</button>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: HERO SLIDES (multi‑image) -->
+            <!-- HERO SLIDES -->
             <div id="tab-slides" class="tab-content hidden">
                 <form method="POST" enctype="multipart/form-data" class="save-form">
                     <input type="hidden" name="update_slides" value="1">
@@ -341,12 +401,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" onclick="addSlideEntry()" class="mt-2 text-blue-600 text-sm hover:underline">+ Add slide</button>
-                    <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-600">Save Slides</button></div>
+                    <button type="button" onclick="addSlideEntry()" class="mt-2 text-blue-600 text-sm">+ Add slide</button>
+                    <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Slides</button></div>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: ABOUT -->
+            <!-- ABOUT -->
             <div id="tab-about" class="tab-content hidden">
                 <form method="POST" class="save-form">
                     <input type="hidden" name="update_about" value="1">
@@ -362,13 +422,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <button type="button" onclick="addStat()" class="mt-2 text-blue-600 text-sm hover:underline">+ Add stat</button>
+                        <button type="button" onclick="addStat()" class="mt-2 text-blue-600 text-sm">+ Add stat</button>
                     </div>
                     <button type="submit" class="mt-6 px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save About</button>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: PROJECTS -->
+            <!-- PROJECTS (with labels) -->
             <div id="tab-projects" class="tab-content hidden">
                 <form method="POST" enctype="multipart/form-data" class="save-form">
                     <input type="hidden" name="update_projects" value="1">
@@ -376,26 +436,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php foreach ($data['projects'] as $proj): ?>
                             <div class="project-entry border-b pb-4 mb-4">
                                 <div class="grid md:grid-cols-2 gap-4">
-                                    <div><input name="proj_title[]" value="<?= htmlspecialchars($proj['title']) ?>" placeholder="Project Title" class="w-full px-3 py-2 border rounded-lg"></div>
-                                    <div><input name="proj_url[]" value="<?= htmlspecialchars($proj['url']) ?>" placeholder="Project URL" class="w-full px-3 py-2 border rounded-lg"></div>
-                                    <div><textarea name="proj_desc[]" rows="2" placeholder="Description" class="w-full px-3 py-2 border rounded-lg"><?= htmlspecialchars($proj['description']) ?></textarea></div>
-                                    <div><input name="proj_tags[]" value="<?= htmlspecialchars(implode(',', $proj['tags'])) ?>" placeholder="Tags (comma separated)" class="w-full px-3 py-2 border rounded-lg"></div>
-                                    <div>
-                                        <input type="file" name="proj_image[]" class="block w-full text-sm">
-                                        <input type="hidden" name="existing_proj_image[]" value="<?= htmlspecialchars($proj['image'] ?? '') ?>">
-                                        <?php if (!empty($proj['image'])): ?><img src="<?= htmlspecialchars($proj['image']) ?>" class="h-12 mt-1 rounded"><?php endif; ?>
-                                    </div>
+                                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Project Title</label><input name="proj_title[]" value="<?= htmlspecialchars($proj['title']) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
+                                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Project URL</label><input name="proj_url[]" value="<?= htmlspecialchars($proj['url']) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
+                                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea name="proj_desc[]" rows="2" class="w-full px-3 py-2 border rounded-lg"><?= htmlspecialchars($proj['description']) ?></textarea></div>
+                                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label><input name="proj_tags[]" value="<?= htmlspecialchars(implode(',', $proj['tags'])) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
+                                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Project Image</label><input type="file" name="proj_image[]" class="block w-full text-sm"><input type="hidden" name="existing_proj_image[]" value="<?= htmlspecialchars($proj['image'] ?? '') ?>"><?php if (!empty($proj['image'])): ?><img src="<?= htmlspecialchars($proj['image']) ?>" class="h-12 mt-1 rounded"><?php endif; ?></div>
                                     <div class="flex items-end"><button type="button" onclick="this.closest('.project-entry').remove()" class="text-red-500 text-sm">Remove project</button></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" onclick="addProjectEntry()" class="mt-2 text-blue-600 text-sm hover:underline">+ Add project</button>
+                    <button type="button" onclick="addProjectEntry()" class="mt-2 text-blue-600 text-sm">+ Add project</button>
                     <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Projects</button></div>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: SKILLS (no levels) -->
+            <!-- SKILLS (no levels) -->
             <div id="tab-skills" class="tab-content hidden">
                 <form method="POST" class="save-form">
                     <input type="hidden" name="update_skills" value="1">
@@ -407,12 +463,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" onclick="addSkillEntry()" class="mt-2 text-blue-600 text-sm hover:underline">+ Add skill</button>
+                    <button type="button" onclick="addSkillEntry()" class="mt-2 text-blue-600 text-sm">+ Add skill</button>
                     <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Skills</button></div>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: EXPERIENCE (calendar dropdowns) -->
+            <!-- EXPERIENCE (calendar dropdowns) -->
             <div id="tab-experience" class="tab-content hidden">
                 <form method="POST" class="save-form">
                     <input type="hidden" name="update_experience" value="1">
@@ -437,49 +493,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="grid md:grid-cols-2 gap-4">
                                     <div><label class="text-sm font-medium">Role</label><input name="exp_role[]" value="<?= htmlspecialchars($exp['role']) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
                                     <div><label class="text-sm font-medium">Company</label><input name="exp_company[]" value="<?= htmlspecialchars($exp['company']) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
-                                    <div>
-                                        <label class="text-sm font-medium">Start Date</label>
-                                        <div class="flex gap-2">
-                                            <select name="exp_start_month[]" class="px-3 py-2 border rounded-lg">
-                                                <?php foreach (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m): ?>
-                                                    <option <?= $m == $startMonth ? 'selected' : '' ?>><?= $m ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <select name="exp_start_year[]" class="px-3 py-2 border rounded-lg">
-                                                <?php for ($y = date('Y')-10; $y <= date('Y')+5; $y++): ?>
-                                                    <option <?= $y == $startYear ? 'selected' : '' ?>><?= $y ?></option>
-                                                <?php endfor; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium">End Date</label>
-                                        <div class="flex gap-2">
-                                            <select name="exp_end_month[]" class="px-3 py-2 border rounded-lg" <?= $isPresent ? 'disabled' : '' ?>>
-                                                <?php foreach (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m): ?>
-                                                    <option <?= $m == $endMonth ? 'selected' : '' ?>><?= $m ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <select name="exp_end_year[]" class="px-3 py-2 border rounded-lg" <?= $isPresent ? 'disabled' : '' ?>>
-                                                <?php for ($y = date('Y')-10; $y <= date('Y')+5; $y++): ?>
-                                                    <option <?= $y == $endYear ? 'selected' : '' ?>><?= $y ?></option>
-                                                <?php endfor; ?>
-                                            </select>
-                                        </div>
-                                        <label class="inline-flex items-center mt-1"><input type="checkbox" name="exp_present[]" class="mr-1 present-check" <?= $isPresent ? 'checked' : '' ?>> Currently working here</label>
-                                    </div>
+                                    <div><label class="text-sm font-medium">Start Date</label><div class="flex gap-2"><select name="exp_start_month[]" class="px-3 py-2 border rounded-lg"><?php foreach (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m): ?><option <?= $m == $startMonth ? 'selected' : '' ?>><?= $m ?></option><?php endforeach; ?></select><select name="exp_start_year[]" class="px-3 py-2 border rounded-lg"><?php for ($y = date('Y')-10; $y <= date('Y')+5; $y++): ?><option <?= $y == $startYear ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></div></div>
+                                    <div><label class="text-sm font-medium">End Date</label><div class="flex gap-2"><select name="exp_end_month[]" class="px-3 py-2 border rounded-lg" <?= $isPresent ? 'disabled' : '' ?>><?php foreach (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m): ?><option <?= $m == $endMonth ? 'selected' : '' ?>><?= $m ?></option><?php endforeach; ?></select><select name="exp_end_year[]" class="px-3 py-2 border rounded-lg" <?= $isPresent ? 'disabled' : '' ?>><?php for ($y = date('Y')-10; $y <= date('Y')+5; $y++): ?><option <?= $y == $endYear ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></div><label class="inline-flex items-center mt-1"><input type="checkbox" name="exp_present[]" class="mr-1 present-check" <?= $isPresent ? 'checked' : '' ?>> Currently working here</label></div>
                                     <div><label class="text-sm font-medium">Description</label><textarea name="exp_desc[]" rows="2" class="w-full px-3 py-2 border rounded-lg"><?= htmlspecialchars($exp['desc']) ?></textarea></div>
                                     <div class="flex items-end"><button type="button" onclick="this.closest('.experience-entry').remove()" class="text-red-500 text-sm">Remove</button></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" onclick="addExperienceEntry()" class="mt-2 text-blue-600 text-sm hover:underline">+ Add experience</button>
+                    <button type="button" onclick="addExperienceEntry()" class="mt-2 text-blue-600 text-sm">+ Add experience</button>
                     <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Experience</button></div>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: COLLEGE JOURNEY (enhanced) -->
+            <!-- COLLEGE JOURNEY -->
             <div id="tab-journey" class="tab-content hidden">
                 <form method="POST" enctype="multipart/form-data" class="save-form">
                     <input type="hidden" name="update_journey" value="1">
@@ -504,12 +531,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" onclick="addJourneyEntry()" class="mt-2 text-blue-600 text-sm hover:underline">+ Add year</button>
+                    <button type="button" onclick="addJourneyEntry()" class="mt-2 text-blue-600 text-sm">+ Add year</button>
                     <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Journey</button></div>
                 </form>
             </div>
 
-            <!-- TAB CONTENT: CONTACT (dynamic) -->
+            <!-- CONTACT (dynamic) -->
             <div id="tab-contact" class="tab-content hidden">
                 <form method="POST" class="save-form">
                     <input type="hidden" name="update_contact" value="1">
@@ -540,7 +567,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         });
 
-        // ==================== DYNAMIC ADD FUNCTIONS ====================
+        // Dynamic add functions (unchanged)
         function addSlideEntry() {
             let idx = document.querySelectorAll('.slide-entry').length;
             let div = document.createElement('div');
@@ -578,12 +605,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             div.className = 'project-entry border-b pb-4 mb-4';
             div.innerHTML = `
                 <div class="grid md:grid-cols-2 gap-4">
-                    <div><input name="proj_title[]" placeholder="Title" class="w-full px-3 py-2 border rounded-lg"></div>
-                    <div><input name="proj_url[]" placeholder="URL" class="w-full px-3 py-2 border rounded-lg"></div>
-                    <div><textarea name="proj_desc[]" rows="2" placeholder="Description" class="w-full px-3 py-2 border rounded-lg"></textarea></div>
-                    <div><input name="proj_tags[]" placeholder="Tags" class="w-full px-3 py-2 border rounded-lg"></div>
-                    <div><input type="file" name="proj_image[]"><input type="hidden" name="existing_proj_image[]"></div>
-                    <div><button type="button" onclick="this.closest('.project-entry').remove()" class="text-red-500 text-sm">Remove project</button></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Title</label><input name="proj_title[]" class="w-full px-3 py-2 border rounded-lg"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">URL</label><input name="proj_url[]" class="w-full px-3 py-2 border rounded-lg"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea name="proj_desc[]" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Tags (comma)</label><input name="proj_tags[]" class="w-full px-3 py-2 border rounded-lg"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Image</label><input type="file" name="proj_image[]"><input type="hidden" name="existing_proj_image[]"></div>
+                    <div class="flex items-end"><button type="button" onclick="this.closest('.project-entry').remove()" class="text-red-500 text-sm">Remove project</button></div>
                 </div>
             `;
             document.getElementById('projects-array').appendChild(div);
@@ -657,7 +684,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('journey-array').appendChild(div);
         }
 
-        // Image removal helpers
         function removeSlideImage(btn, imgPath, slideIdx) {
             if (confirm('Delete this image?')) {
                 btn.parentElement.remove();

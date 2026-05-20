@@ -1,20 +1,32 @@
 {
     "owner": {
-        "name": "Than Evoraeee",
-        "title": "Business Analyst & Data Scientist",
+        "name": "Than Evora",
+        "title": "Business Analyst & Web developer",
         "tagline": "Turning data into insights that drive business success.",
-        "location": "Payatas, Quezon, Philippines",
+        "location": "Payatas, Quezon City, Philippines",
         "email": "thanevora86@gmail.com",
         "phone": "(+63) 9270726974",
         "cv_url": "",
         "socials": {
-            "github": "https:\/\/github.com",
-            "linkedin": "https:\/\/linkedin.com",
-            "facebook": ""
+            "github": "https:\/\/github.com\/naysuee",
+            "jobstreet": "https:\/\/ph.jobstreet.com\/profiles\/than-evora-NZFpFvGzDw",
+            "facebook": "https:\/\/www.instagram.com\/thanevora86\/",
+            "instagram": "https:\/\/www.instagram.com\/thanevora86\/"
+        },
+        "social_qr": {
+            "github": "uploads\/qr\/6a0d5c379d751.jpg",
+            "facebook": "",
+            "instagram": ""
+        },
+        "social_icons": {
+            "github": "uploads\/icons\/6a0db83189469.png",
+            "jobstreet": "uploads\/icons\/6a0db88606146.png",
+            "facebook": "uploads\/icons\/6a0db886063eb.jpg",
+            "instagram": "uploads\/icons\/6a0db88606ed2.jpg"
         }
     },
     "footer": {
-        "copyright": "© 2025 Than Evora. All rights reserved.",
+        "copyright": "© 2026 Than Evora. All rights reserved.",
         "credit": "Built with PHP & Tailwind"
     },
     "hero_slides": [

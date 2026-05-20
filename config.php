@@ -9,9 +9,24 @@ session_start();
 define('DATA_FILE', __DIR__ . '/data/site.json');
 define('UPLOAD_DIR', __DIR__ . '/uploads/');
 define('ADMIN_PASSWORD', '4562526'); // plain text password
+define('ADMIN_EMAIL', 'thanevora86@gmail.com');
+
+// ==================== SMTP SETTINGS (Gmail App Password) ====================
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_USER', 'thanevora86@gmail.com');
+define('SMTP_PASS', 'vqpw ciwq bqjr sljt');
+define('SMTP_PORT', 587);
+define('SMTP_SECURE', 'tls');
 
 // ==================== CREATE NECESSARY DIRECTORIES ====================
-$directories = [__DIR__ . '/data', UPLOAD_DIR, UPLOAD_DIR . 'slides', UPLOAD_DIR . 'projects', UPLOAD_DIR . 'journey'];
+$directories = [
+    __DIR__ . '/data',
+    UPLOAD_DIR,
+    UPLOAD_DIR . 'slides',
+    UPLOAD_DIR . 'projects',
+    UPLOAD_DIR . 'journey',
+    UPLOAD_DIR . 'icons'  // new folder for social icons
+];
 foreach ($directories as $dir) {
     if (!is_dir($dir)) mkdir($dir, 0777, true);
 }
@@ -28,9 +43,16 @@ if (!file_exists(DATA_FILE)) {
             'phone'    => '(+63) 9270726974',
             'cv_url'   => '',
             'socials'  => [
-                'github'   => 'https://github.com',
-                'linkedin' => 'https://linkedin.com',
-                'facebook' => ''
+                'github'    => 'https://github.com/',
+                'jobstreet' => 'https://jobstreet.com/',
+                'facebook'  => 'https://facebook.com/',
+                'instagram' => 'https://instagram.com/'
+            ],
+            'social_icons' => [   // NEW: store custom icon paths
+                'github'    => '',
+                'jobstreet' => '',
+                'facebook'  => '',
+                'instagram' => ''
             ]
         ],
         'footer' => [
@@ -91,7 +113,7 @@ if (!file_exists(DATA_FILE)) {
 function loadData() {
     $data = json_decode(file_get_contents(DATA_FILE), true);
     
-    // Migrate old hero_slides format (single image -> array of images)
+    // Migrate old hero_slides format (single image → array of images)
     if (isset($data['hero_slides'][0]) && !isset($data['hero_slides'][0]['images'])) {
         foreach ($data['hero_slides'] as &$slide) {
             $oldImg = $slide['image'] ?? '';
@@ -114,10 +136,22 @@ function loadData() {
         ];
     }
     
-    // Replace twitter with facebook if legacy data exists
-    if (isset($data['owner']['socials']['twitter'])) {
-        $data['owner']['socials']['facebook'] = $data['owner']['socials']['twitter'];
-        unset($data['owner']['socials']['twitter']);
+    // Ensure social_icons array exists (migration)
+    if (!isset($data['owner']['social_icons'])) {
+        $data['owner']['social_icons'] = [
+            'github'    => '',
+            'jobstreet' => '',
+            'facebook'  => '',
+            'instagram' => ''
+        ];
+    }
+    
+    // Ensure all social links exist
+    $defaultSocials = ['github', 'jobstreet', 'facebook', 'instagram'];
+    foreach ($defaultSocials as $platform) {
+        if (!isset($data['owner']['socials'][$platform])) {
+            $data['owner']['socials'][$platform] = '';
+        }
     }
     
     return $data;
@@ -136,7 +170,7 @@ function uploadFile($file, $subfolder = '') {
     if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
     
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'pdf', 'doc', 'docx'];
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
     if (!in_array($ext, $allowed)) return false;
     
     $filename = uniqid() . '.' . $ext;
