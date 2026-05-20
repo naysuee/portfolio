@@ -25,7 +25,7 @@ $directories = [
     UPLOAD_DIR . 'slides',
     UPLOAD_DIR . 'projects',
     UPLOAD_DIR . 'journey',
-    UPLOAD_DIR . 'icons'  // new folder for social icons
+    UPLOAD_DIR . 'icons'  // folder for social icons
 ];
 foreach ($directories as $dir) {
     if (!is_dir($dir)) mkdir($dir, 0777, true);
@@ -48,7 +48,7 @@ if (!file_exists(DATA_FILE)) {
                 'facebook'  => 'https://facebook.com/',
                 'instagram' => 'https://instagram.com/'
             ],
-            'social_icons' => [   // NEW: store custom icon paths
+            'social_icons' => [
                 'github'    => '',
                 'jobstreet' => '',
                 'facebook'  => '',
@@ -101,7 +101,7 @@ if (!file_exists(DATA_FILE)) {
             ['id' => 'about',    'label' => 'About',     'icon' => 'user'],
             ['id' => 'projects', 'label' => 'Projects',  'icon' => 'folder-git-2'],
             ['id' => 'skills',   'label' => 'Skills',    'icon' => 'zap'],
-            ['id' => 'experience','label' => 'Experience','icon' => 'briefcase'],
+            // ['id' => 'experience','label' => 'Experience','icon' => 'briefcase'], // commented out
             ['id' => 'journey',  'label' => 'College',   'icon' => 'graduation-cap'],
             ['id' => 'contact',  'label' => 'Contact',   'icon' => 'mail']
         ]
@@ -170,7 +170,7 @@ function uploadFile($file, $subfolder = '') {
     if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
     
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'pdf', 'doc', 'docx'];
     if (!in_array($ext, $allowed)) return false;
     
     $filename = uniqid() . '.' . $ext;

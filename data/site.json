@@ -6,7 +6,7 @@
         "location": "Payatas, Quezon City, Philippines",
         "email": "thanevora86@gmail.com",
         "phone": "(+63) 9270726974",
-        "cv_url": "",
+        "cv_url": "uploads\/6a0df50c5a652.pdf",
         "socials": {
             "github": "https:\/\/github.com\/naysuee",
             "jobstreet": "https:\/\/ph.jobstreet.com\/profiles\/than-evora-NZFpFvGzDw",
@@ -31,14 +31,20 @@
     },
     "hero_slides": [
         {
-            "images": [],
+            "images": [
+                "uploads\/slides\/6a0dd493887bd.jpg",
+                "uploads\/slides\/6a0dd46b0a2db.jpg",
+                "uploads\/slides\/6a0dd455ea0d6.jpg",
+                "uploads\/slides\/6a0dd41223059.jpg",
+                "uploads\/slides\/6a0dd2af1373f.jpg"
+            ],
             "title": "Hi, I'm Than Evora",
-            "subtitle": "I transform data into actionable insights",
+            "subtitle": "I transform data into actionable insights and develop websites.",
             "link": "#about"
         }
     ],
     "about": {
-        "bio": "Motivated IT professional with experience in leadership, public speaking, programming, and system development.",
+        "bio": "Motivated and dedicated individual with strong skills in leadership, adaptability, public speaking, programming, system structure and infrastructure planning, technical documentation, and system planning and analysis. Experienced in system development, research participation, and collaborative environments, with the ability to design structured workflows, solve problems logically, and adapt effectively to new technologies and fast-paced settings.",
         "stats": [
             {
                 "label": "Projects Delivered",
@@ -56,33 +62,79 @@
     },
     "projects": [
         {
-            "title": "E-Commerce Platform",
-            "description": "Full-featured online store with cart, payments, and admin dashboard.",
+            "title": "Soliera Hotel & Restaurant Management System",
+            "description": "A full-featured Restaurant Management System that streamlines operations through integrated POS, billing and payments, table and event reservations, menu and user management, Kitchen Order Ticket (KOT), inventory control, and customer feedback. It also includes real-time reports and analytics powered by Metabase (BI), with tracking of turnover and wait times to improve efficiency and service flow.",
+            "url": "https:\/\/restaurant.soliera-hotel-restaurant.com\/",
             "tags": [
                 "PHP",
-                "Laravel",
+                "Javascript",
                 "MySQL",
-                "Tailwind"
+                "Tailwind CSS"
             ],
-            "image": "",
-            "url": "#",
-            "featured": true
+            "image": "uploads\/projects\/6a0dd50455596.png",
+            "featured": false
         }
     ],
     "skills": [
-        "PHP \/ Laravel",
+        "PHP",
         "JavaScript (ES6+)",
-        "Vue.js \/ React",
+        "React",
         "Tailwind CSS",
-        "MySQL \/ PostgreSQL",
-        "Git \/ Docker"
+        "MySQL",
+        "Git",
+        "Postman",
+        "Ngrok",
+        "Visual studio"
     ],
     "experience": [],
     "journey": [
         {
-            "year": "1st Year",
-            "description": "Introduction to programming fundamentals, algorithms, and logic.",
-            "images": []
+            "year": "Freshmen",
+            "description": "During my freshman year as an IT student, I focused on adjusting to college life and adapting to the Information Technology environment. I learned the fundamentals of technology, built friendships with classmates, and participated in activities outside the campus, helping me improve teamwork, communication, and adaptability.",
+            "images": [
+                "uploads\/journey\/6a0dd6a191388.jpg",
+                "uploads\/journey\/6a0dd6a1915f7.jpg",
+                "uploads\/journey\/6a0dd6a1918df.jpg",
+                "uploads\/journey\/6a0dd6a191c5b.jpg"
+            ]
+        },
+        {
+            "year": "Sophomore",
+            "description": "During my sophomore year, I was introduced to more complex programming concepts and technical subjects that strengthened my understanding of coding and problem-solving. At the same time, I served as the Mayor\/President of our section, where I developed leadership, communication, and organizational skills while balancing academic responsibilities.",
+            "images": [
+                "uploads\/journey\/6a0dd824459ca.jpg",
+                "uploads\/journey\/6a0dd82445db5.jpg",
+                "uploads\/journey\/6a0dd824461cf.jpg"
+            ]
+        },
+        {
+            "year": "Junior",
+            "description": "In my junior year, I gained deeper experience in system development, including understanding the structure and infrastructure of systems, planning, and implementation. I further explored both front-end and back-end development, becoming familiar with full-stack concepts. One of the major milestones of this year was successfully presenting and completing our integrated system project.",
+            "images": [
+                "uploads\/journey\/6a0ddbc51226f.jpg",
+                "uploads\/journey\/6a0ddbc512502.jpg",
+                "uploads\/journey\/6a0ddbc512845.jpg",
+                "uploads\/journey\/6a0ddbc512b41.jpg",
+                "uploads\/journey\/6a0ddbc512e9b.jpg"
+            ]
+        },
+        {
+            "year": "Senior & OJT",
+            "description": "During my final year as an IT student, I served as both the Scrum Master and Mayor of our section, strengthening my leadership and project management skills. I developed a deeper understanding of building efficient, reliable, and structured systems through capstone development and real-world exposure during OJT. Together with my group, we successfully passed our capstone defense, overcoming challenges, sleepless nights, pressure, and tight deadlines an experience that strengthened my resilience, teamwork, and dedication to delivering quality work.",
+            "images": [
+                "uploads\/journey\/6a0ddfc606aca.jpg",
+                "uploads\/journey\/6a0ddfc606eea.jpg",
+                "uploads\/journey\/6a0ddfc60726c.jpg",
+                "uploads\/journey\/6a0ddfc6076dc.jpg",
+                "uploads\/journey\/6a0ddfc607b07.jpg",
+                "uploads\/journey\/6a0ddfc607f53.jpg",
+                "uploads\/journey\/6a0ddfc6086f9.jpg",
+                "uploads\/journey\/6a0ddfc608aa2.jpg",
+                "uploads\/journey\/6a0ddfc608e39.jpg",
+                "uploads\/journey\/6a0ddfc609167.jpg",
+                "uploads\/journey\/6a0ddfc6095b8.jpg",
+                "uploads\/journey\/6a0ddfc6098ef.jpg"
+            ]
         }
     ],
     "contact": {

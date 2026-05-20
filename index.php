@@ -8,6 +8,12 @@ require_once 'config.php';
 require_once 'PHPMailer/PHPMailerAutoload.php';
 
 $data = loadData();
+// Filter out the experience nav item if it exists (prevents display even from old JSON)
+$data['nav_items'] = array_filter($data['nav_items'], function($item) {
+    return $item['id'] !== 'experience';
+});
+// Re-index array to avoid gaps
+$data['nav_items'] = array_values($data['nav_items']);
 extract($data);
 
 $formSent = false;
@@ -337,11 +343,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_submit'])) {
 
                 <!-- SKILLS -->
                 <section id="skills" class="section-anchor py-16 lg:py-20 fade-section">
-                    <div class="mb-10 text-center lg:text-left"><span class="text-navy-700 text-sm uppercase">Skills</span><h2 class="text-3xl lg:text-4xl font-bold mt-2">Technologies I Use</h2></div>
+                    <div class="mb-10 text-center lg:text-left"><span class="text-navy-700 text-sm uppercase">Tools & Frameworks</span><h2 class="text-3xl lg:text-4xl font-bold mt-2">Technologies I Use</h2></div>
                     <div class="flex flex-wrap gap-3"><?php foreach ($skills as $skill): ?><span class="px-4 py-2 bg-navy-50 text-navy-800 rounded-full text-sm font-medium border shadow-sm"><?= htmlspecialchars($skill) ?></span><?php endforeach; ?></div>
                 </section>
 
-                <!-- EXPERIENCE -->
+                <!-- EXPERIENCE - COMMENTED OUT
                 <section id="experience" class="section-anchor py-16 lg:py-20 fade-section">
                     <div class="mb-10 text-center lg:text-left"><span class="text-navy-700 text-sm uppercase">Experience</span><h2 class="text-3xl lg:text-4xl font-bold mt-2">Work History</h2></div>
                     <div class="space-y-0 relative before:absolute before:left-5 before:top-0 before:bottom-0 before:w-px before:bg-navy-200">
@@ -359,6 +365,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_submit'])) {
                         <?php endforeach; ?>
                     </div>
                 </section>
+                -->
 
                 <!-- COLLEGE JOURNEY -->
                 <section id="journey" class="section-anchor py-16 lg:py-20 fade-section">
@@ -403,85 +410,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_submit'])) {
                             </form>
                         </div>
                         
-<!-- Contact Sidebar with Custom Icons - Larger corners, no margins -->
-<div class="lg:col-span-2">
-    <div class="bg-navy-800 rounded-3xl p-6 text-white shadow-xl">
-        <h3 class="font-bold text-xl">Get in touch</h3>
-        <p class="text-white/70 text-sm mt-1"><?= htmlspecialchars($contact['subheading']) ?></p>
-        
-        <!-- Contact details with icons -->
-        <div class="space-y-4 text-sm mt-6">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center"><i data-lucide="mail" class="w-6 h-6"></i></div>
-                <span><?= htmlspecialchars($owner['email']) ?></span>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center"><i data-lucide="phone" class="w-6 h-6"></i></div>
-                <span><?= htmlspecialchars($owner['phone']) ?></span>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center"><i data-lucide="map-pin" class="w-6 h-6"></i></div>
-                <span><?= htmlspecialchars($owner['location']) ?></span>
-            </div>
-        </div>
+                        <!-- Contact Sidebar with Custom Icons - Larger corners, no margins -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-navy-800 rounded-3xl p-6 text-white shadow-xl">
+                                <h3 class="font-bold text-xl">Get in touch</h3>
+                                <p class="text-white/70 text-sm mt-1"><?= htmlspecialchars($contact['subheading']) ?></p>
+                                
+                                <!-- Contact details with icons -->
+                                <div class="space-y-4 text-sm mt-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center"><i data-lucide="mail" class="w-6 h-6"></i></div>
+                                        <span><?= htmlspecialchars($owner['email']) ?></span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center"><i data-lucide="phone" class="w-6 h-6"></i></div>
+                                        <span><?= htmlspecialchars($owner['phone']) ?></span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center"><i data-lucide="map-pin" class="w-6 h-6"></i></div>
+                                        <span><?= htmlspecialchars($owner['location']) ?></span>
+                                    </div>
+                                </div>
 
-        <?php if (!empty($contact['extra_text'])): ?>
-            <p class="text-white/60 text-xs italic mt-4"><?= htmlspecialchars($contact['extra_text']) ?></p>
-        <?php endif; ?>
+                                <?php if (!empty($contact['extra_text'])): ?>
+                                    <p class="text-white/60 text-xs italic mt-4"><?= htmlspecialchars($contact['extra_text']) ?></p>
+                                <?php endif; ?>
 
-        <!-- Social links with custom icons (rounded corners) -->
-        <div class="space-y-3 pt-4">
-            <?php if (!empty($owner['socials']['github'])): ?>
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                        <?php if (!empty($owner['social_icons']['github'])): ?>
-                            <img src="<?= htmlspecialchars($owner['social_icons']['github']) ?>" class="w-8 h-8 object-contain rounded-lg">
-                        <?php else: ?>
-                            <i data-lucide="github" class="w-6 h-6"></i>
-                        <?php endif; ?>
-                    </div>
-                    <a href="<?= htmlspecialchars($owner['socials']['github']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['github']) ?></a>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($owner['socials']['jobstreet'])): ?>
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                        <?php if (!empty($owner['social_icons']['jobstreet'])): ?>
-                            <img src="<?= htmlspecialchars($owner['social_icons']['jobstreet']) ?>" class="w-8 h-8 object-contain rounded-lg">
-                        <?php else: ?>
-                            <i data-lucide="briefcase" class="w-6 h-6"></i>
-                        <?php endif; ?>
-                    </div>
-                    <a href="<?= htmlspecialchars($owner['socials']['jobstreet']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['jobstreet']) ?></a>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($owner['socials']['facebook'])): ?>
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                        <?php if (!empty($owner['social_icons']['facebook'])): ?>
-                            <img src="<?= htmlspecialchars($owner['social_icons']['facebook']) ?>" class="w-8 h-8 object-contain rounded-lg">
-                        <?php else: ?>
-                            <i data-lucide="facebook" class="w-6 h-6"></i>
-                        <?php endif; ?>
-                    </div>
-                    <a href="<?= htmlspecialchars($owner['socials']['facebook']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['facebook']) ?></a>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($owner['socials']['instagram'])): ?>
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                        <?php if (!empty($owner['social_icons']['instagram'])): ?>
-                            <img src="<?= htmlspecialchars($owner['social_icons']['instagram']) ?>" class="w-8 h-8 object-contain rounded-lg">
-                        <?php else: ?>
-                            <i data-lucide="instagram" class="w-6 h-6"></i>
-                        <?php endif; ?>
-                    </div>
-                    <a href="<?= htmlspecialchars($owner['socials']['instagram']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['instagram']) ?></a>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
+                                <!-- Social links with custom icons (rounded corners) -->
+                                <div class="space-y-3 pt-4">
+                                    <?php if (!empty($owner['socials']['github'])): ?>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                                                <?php if (!empty($owner['social_icons']['github'])): ?>
+                                                    <img src="<?= htmlspecialchars($owner['social_icons']['github']) ?>" class="w-8 h-8 object-contain rounded-lg">
+                                                <?php else: ?>
+                                                    <i data-lucide="github" class="w-6 h-6"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <a href="<?= htmlspecialchars($owner['socials']['github']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['github']) ?></a>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($owner['socials']['jobstreet'])): ?>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                                                <?php if (!empty($owner['social_icons']['jobstreet'])): ?>
+                                                    <img src="<?= htmlspecialchars($owner['social_icons']['jobstreet']) ?>" class="w-8 h-8 object-contain rounded-lg">
+                                                <?php else: ?>
+                                                    <i data-lucide="briefcase" class="w-6 h-6"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <a href="<?= htmlspecialchars($owner['socials']['jobstreet']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['jobstreet']) ?></a>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($owner['socials']['facebook'])): ?>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                                                <?php if (!empty($owner['social_icons']['facebook'])): ?>
+                                                    <img src="<?= htmlspecialchars($owner['social_icons']['facebook']) ?>" class="w-8 h-8 object-contain rounded-lg">
+                                                <?php else: ?>
+                                                    <i data-lucide="facebook" class="w-6 h-6"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <a href="<?= htmlspecialchars($owner['socials']['facebook']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['facebook']) ?></a>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($owner['socials']['instagram'])): ?>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                                                <?php if (!empty($owner['social_icons']['instagram'])): ?>
+                                                    <img src="<?= htmlspecialchars($owner['social_icons']['instagram']) ?>" class="w-8 h-8 object-contain rounded-lg">
+                                                <?php else: ?>
+                                                    <i data-lucide="instagram" class="w-6 h-6"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <a href="<?= htmlspecialchars($owner['socials']['instagram']) ?>" target="_blank" class="text-white/80 hover:text-white text-sm break-all"><?= htmlspecialchars($owner['socials']['instagram']) ?></a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>

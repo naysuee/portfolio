@@ -38,7 +38,7 @@ function textareaField($label, $name, $value = '') {
 
 // ==================== PROCESS FORM SUBMISSIONS ====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ---------- Owner Info (with custom icon uploads) ----------
+    // ---------- Owner Info (with custom icon uploads and CV upload) ----------
     if (isset($_POST['update_owner'])) {
         $data['owner']['name']     = $_POST['name'] ?? '';
         $data['owner']['title']    = $_POST['title'] ?? '';
@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
+        // CV upload (resume)
         if (!empty($_FILES['cv_file']['name'])) {
             $cvPath = uploadFile($_FILES['cv_file'], '');
             if ($cvPath) {
@@ -172,7 +173,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['skills'] = array_values($skillNames);
         $message = 'Skills updated.';
     }
-    // ---------- Experience (calendar dropdowns) ----------
+    // ---------- Experience (calendar dropdowns) - COMMENTED OUT ----------
+    /*
     elseif (isset($_POST['update_experience'])) {
         $experienceData = [];
         $roles      = $_POST['exp_role'] ?? [];
@@ -199,6 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['experience'] = $experienceData;
         $message = 'Experience updated.';
     }
+    */
     // ---------- College Journey (multi‑image) ----------
     elseif (isset($_POST['update_journey'])) {
         $journeyData = [];
@@ -298,12 +301,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="about">About</button>
                 <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="projects">Projects</button>
                 <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="skills">Skills</button>
-                <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="experience">Experience</button>
+                <!-- <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="experience">Experience</button> -->
                 <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="journey">College Journey</button>
                 <button class="tab-btn px-4 py-2 rounded-lg text-sm" data-tab="contact">Contact</button>
             </div>
 
-            <!-- OWNER INFO (with custom icon uploads) -->
+            <!-- OWNER INFO (with custom icon uploads and CV upload) -->
             <div id="tab-owner" class="tab-content">
                 <form method="POST" enctype="multipart/form-data" class="save-form">
                     <input type="hidden" name="update_owner" value="1">
@@ -468,43 +471,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
 
-            <!-- EXPERIENCE (calendar dropdowns) -->
+            <!-- EXPERIENCE - COMMENTED OUT 
             <div id="tab-experience" class="tab-content hidden">
-                <form method="POST" class="save-form">
-                    <input type="hidden" name="update_experience" value="1">
-                    <div id="experience-array" class="space-y-5">
-                        <?php foreach ($data['experience'] as $exp):
-                            $parts = explode(' - ', $exp['period']);
-                            $startRaw = $parts[0] ?? '';
-                            $endRaw = $parts[1] ?? 'Present';
-                            preg_match('/(\w+)\s+(\d{4})/', $startRaw, $sm);
-                            $startMonth = $sm[1] ?? 'Jan';
-                            $startYear  = $sm[2] ?? date('Y');
-                            $isPresent = ($endRaw === 'Present');
-                            if (!$isPresent) {
-                                preg_match('/(\w+)\s+(\d{4})/', $endRaw, $em);
-                                $endMonth = $em[1] ?? 'Dec';
-                                $endYear  = $em[2] ?? date('Y');
-                            } else {
-                                $endMonth = $endYear = '';
-                            }
-                        ?>
-                            <div class="experience-entry border-b pb-4 mb-4">
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <div><label class="text-sm font-medium">Role</label><input name="exp_role[]" value="<?= htmlspecialchars($exp['role']) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
-                                    <div><label class="text-sm font-medium">Company</label><input name="exp_company[]" value="<?= htmlspecialchars($exp['company']) ?>" class="w-full px-3 py-2 border rounded-lg"></div>
-                                    <div><label class="text-sm font-medium">Start Date</label><div class="flex gap-2"><select name="exp_start_month[]" class="px-3 py-2 border rounded-lg"><?php foreach (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m): ?><option <?= $m == $startMonth ? 'selected' : '' ?>><?= $m ?></option><?php endforeach; ?></select><select name="exp_start_year[]" class="px-3 py-2 border rounded-lg"><?php for ($y = date('Y')-10; $y <= date('Y')+5; $y++): ?><option <?= $y == $startYear ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></div></div>
-                                    <div><label class="text-sm font-medium">End Date</label><div class="flex gap-2"><select name="exp_end_month[]" class="px-3 py-2 border rounded-lg" <?= $isPresent ? 'disabled' : '' ?>><?php foreach (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m): ?><option <?= $m == $endMonth ? 'selected' : '' ?>><?= $m ?></option><?php endforeach; ?></select><select name="exp_end_year[]" class="px-3 py-2 border rounded-lg" <?= $isPresent ? 'disabled' : '' ?>><?php for ($y = date('Y')-10; $y <= date('Y')+5; $y++): ?><option <?= $y == $endYear ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></div><label class="inline-flex items-center mt-1"><input type="checkbox" name="exp_present[]" class="mr-1 present-check" <?= $isPresent ? 'checked' : '' ?>> Currently working here</label></div>
-                                    <div><label class="text-sm font-medium">Description</label><textarea name="exp_desc[]" rows="2" class="w-full px-3 py-2 border rounded-lg"><?= htmlspecialchars($exp['desc']) ?></textarea></div>
-                                    <div class="flex items-end"><button type="button" onclick="this.closest('.experience-entry').remove()" class="text-red-500 text-sm">Remove</button></div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <button type="button" onclick="addExperienceEntry()" class="mt-2 text-blue-600 text-sm">+ Add experience</button>
-                    <div class="mt-4"><button type="submit" class="px-6 py-2.5 bg-blue-900 text-white rounded-lg">Save Experience</button></div>
-                </form>
+                ... experience form ...
             </div>
+            -->
 
             <!-- COLLEGE JOURNEY -->
             <div id="tab-journey" class="tab-content hidden">
@@ -626,43 +597,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('skills-array').appendChild(div);
         }
 
-        function addExperienceEntry() {
-            let div = document.createElement('div');
-            div.className = 'experience-entry border-b pb-4 mb-4';
-            div.innerHTML = `
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div><label class="text-sm font-medium">Role</label><input name="exp_role[]" class="w-full px-3 py-2 border rounded-lg"></div>
-                    <div><label class="text-sm font-medium">Company</label><input name="exp_company[]" class="w-full px-3 py-2 border rounded-lg"></div>
-                    <div><label class="text-sm font-medium">Start Date</label><div class="flex gap-2"><select name="exp_start_month[]" class="px-3 py-2 border rounded-lg"><?php foreach(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m) echo "<option>$m</option>"; ?></select><select name="exp_start_year[]" class="px-3 py-2 border rounded-lg"><?php for($y=date('Y')-10;$y<=date('Y')+5;$y++) echo "<option>$y</option>"; ?></select></div></div>
-                    <div><label class="text-sm font-medium">End Date</label><div class="flex gap-2"><select name="exp_end_month[]" class="px-3 py-2 border rounded-lg"><?php foreach(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as $m) echo "<option>$m</option>"; ?></select><select name="exp_end_year[]" class="px-3 py-2 border rounded-lg"><?php for($y=date('Y')-10;$y<=date('Y')+5;$y++) echo "<option>$y</option>"; ?></select></div><label class="inline-flex items-center mt-1"><input type="checkbox" name="exp_present[]" class="mr-1 present-check"> Currently working here</label></div>
-                    <div><label class="text-sm font-medium">Description</label><textarea name="exp_desc[]" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea></div>
-                    <div><button type="button" onclick="this.closest('.experience-entry').remove()" class="text-red-500 text-sm">Remove</button></div>
-                </div>
-            `;
-            document.getElementById('experience-array').appendChild(div);
-            attachPresentToggle(div);
-        }
-
-        function attachPresentToggle(entry) {
-            let cb = entry.querySelector('.present-check');
-            let endMonth = entry.querySelector('select[name="exp_end_month[]"]');
-            let endYear = entry.querySelector('select[name="exp_end_year[]"]');
-            if (cb) {
-                cb.addEventListener('change', function() {
-                    let disabled = this.checked;
-                    if (endMonth) endMonth.disabled = disabled;
-                    if (endYear) endYear.disabled = disabled;
-                    if (disabled) {
-                        if (endMonth) endMonth.value = '';
-                        if (endYear) endYear.value = '';
-                    }
-                });
-            }
-        }
-
-        document.querySelectorAll('.experience-entry .present-check').forEach(cb => {
-            attachPresentToggle(cb.closest('.experience-entry'));
-        });
+        // Experience add function commented out
+        /*
+        function addExperienceEntry() { ... }
+        function attachPresentToggle(entry) { ... }
+        */
 
         function addJourneyEntry() {
             let idx = document.querySelectorAll('.journey-entry').length;
